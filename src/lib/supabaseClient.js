@@ -9,7 +9,3 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     detectSessionInUrl: false,  // IMPORTANT: disable automatic URL session parsing
   },
 });
-<<<<<<< HEAD
-
-=======
->>>>>>> 4fce87d (Taskaraa App Updated)

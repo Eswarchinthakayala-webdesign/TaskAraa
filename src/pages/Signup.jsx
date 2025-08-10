@@ -13,22 +13,6 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-<<<<<<< HEAD
-  // Redirect if user already logged in
-  useEffect(() => {
-    async function checkSession() {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (session) navigate("/dashboard");
-    }
-
-    checkSession();
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-=======
   // Redirect if already logged in
   useEffect(() => {
     const checkSession = async () => {
@@ -39,7 +23,6 @@ export default function Signup() {
     checkSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
->>>>>>> 4fce87d (Taskaraa App Updated)
       if (session) navigate("/dashboard");
     });
 
@@ -50,35 +33,6 @@ export default function Signup() {
     e.preventDefault();
     setLoading(true);
 
-<<<<<<< HEAD
-    try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { name },
-          // You can add emailRedirectTo if you want email confirmation flow redirect
-          // emailRedirectTo: `${window.location.origin}/auth/callback`
-        },
-      });
-
-      if (error) throw error;
-
-      if (data.user) {
-        // Save profile info in 'profiles' table
-        const { error: profileError } = await supabase.from("profiles").insert({
-          id: data.user.id,
-          full_name: name,
-        });
-
-        if (profileError) {
-          showToast("error", "Failed to save profile info", 2000, profileError.message);
-        } else {
-          showToast("success", "Signup successful", 2000, `Welcome to TaskAra, ${name || data.user.email}`);
-          // If you want to auto-login after signup without email confirmation, 
-          // you can do supabase.auth.signIn here. Otherwise, prompt email verification
-        }
-=======
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -109,17 +63,7 @@ export default function Signup() {
       } else {
         showToast("success", "Signup successful", 2000, `Welcome to TaskAra, ${name || data.user.email}`);
         // Usually wait for email confirmation before redirecting
->>>>>>> 4fce87d (Taskaraa App Updated)
       }
-    } catch (error) {
-      if (error.message.toLowerCase().includes("user already registered")) {
-        showToast("error", "User already exists", 2000, "Redirecting to login...");
-        setTimeout(() => navigate("/login"), 1500);
-      } else {
-        showToast("error", "Signup failed", 2000, error.message);
-      }
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -178,7 +122,7 @@ export default function Signup() {
           disabled={loading}
           className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-pink-600 hover:to-purple-600 text-white text-[18px] font-semibold cursor-pointer"
         >
-          {loading ? "Signing Up..." : "Sign Up"}
+          {loading ? "Checking" : "Sign Up"}
         </Button>
 
         <div className="text-center text-white text-sm opacity-80">or</div>

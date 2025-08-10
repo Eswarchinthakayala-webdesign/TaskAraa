@@ -207,11 +207,7 @@ function getRecurrenceText(recurring_type, recurrence_meta = {}) {
   if (!task) return <LoadingPage/>
 
   return (
-<<<<<<< HEAD
-    <div className="min-h-screen bg-gradient-to-b from-[#0E0E23] via-[#1A1A2E] to-[#0E0E23] text-white px-8 pt-20 py-10 space-y-10">
-=======
     <div className="min-h-screen bg-gradient-to-b from-[#0E0E23] via-[#1A1A2E] to-[#0E0E23] text-white px-4 pt-24 pb-10 space-y-10">
->>>>>>> 4fce87d (Taskaraa App Updated)
         <Sidebar/>
   {/* Task details */}
 <div className="bg-[#1E1E2F] p-6 rounded-2xl shadow-xl border border-purple-600 space-y-6">
