@@ -207,7 +207,11 @@ function getRecurrenceText(recurring_type, recurrence_meta = {}) {
   if (!task) return <LoadingPage/>
 
   return (
+<<<<<<< HEAD
     <div className="min-h-screen bg-gradient-to-b from-[#0E0E23] via-[#1A1A2E] to-[#0E0E23] text-white px-8 pt-20 py-10 space-y-10">
+=======
+    <div className="min-h-screen bg-gradient-to-b from-[#0E0E23] via-[#1A1A2E] to-[#0E0E23] text-white px-4 pt-24 pb-10 space-y-10">
+>>>>>>> 4fce87d (Taskaraa App Updated)
         <Sidebar/>
   {/* Task details */}
 <div className="bg-[#1E1E2F] p-6 rounded-2xl shadow-xl border border-purple-600 space-y-6">
@@ -334,7 +338,7 @@ function getRecurrenceText(recurring_type, recurrence_meta = {}) {
           {aiModalOpen && (
             <motion.div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <motion.div className="bg-[#1E1E2F] border border-purple-600 p-6 rounded-xl shadow-xl w-full max-w-md"
+              <motion.div className="bg-[#1E1E2F] border border-purple-600 p-4 ml-6 mr-6 rounded-xl shadow-xl w-full max-w-md"
                 initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}>
                 <h2 className="text-lg font-semibold text-purple-300 mb-3">🤖 AI Note Assistant</h2>
                 <textarea

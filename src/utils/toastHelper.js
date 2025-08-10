@@ -1,7 +1,7 @@
 import { toast } from "sonner";
 import React from "react";
 
-export const showToast = (type, message, duration = 3000, description = "") => {
+export const showToast = (type, message, duration = 2000, description = "") => {
   toast.custom(
     () =>
       React.createElement(

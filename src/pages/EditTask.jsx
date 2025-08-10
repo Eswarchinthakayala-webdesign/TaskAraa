@@ -28,6 +28,7 @@ import {
   AlertDialogAction,
 } from '@/components/ui/alert-dialog';
 import Sidebar from '../components/Sidebar';
+import { showToast } from '../utils/toastHelper';
 
 export default function EditTask() {
   const { id } = useParams();
@@ -44,7 +45,6 @@ export default function EditTask() {
     recurring_type: 'none',
     recurrence_meta: {},
   });
-
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
@@ -113,22 +113,26 @@ export default function EditTask() {
     return Object.keys(errs).length === 0;
   };
 
-  const handleUpdate = async () => {
-    if (!validateRecurrence()) return;
+ const handleUpdate = async () => {
+  if (!validateRecurrence()) return;
 
-    const { error } = await supabase.from('tasks').update({
+  const { error } = await supabase
+    .from("tasks")
+    .update({
       ...form,
-      start_date: form.start_date ? format(form.start_date, 'yyyy-MM-dd') : null,
-      due_date: form.due_date ? format(form.due_date, 'yyyy-MM-dd') : null,
+      start_date: form.start_date ? format(form.start_date, "yyyy-MM-dd") : null,
+      due_date: form.due_date ? format(form.due_date, "yyyy-MM-dd") : null,
       recurrence_meta: form.recurrence_meta,
-    }).eq('id', id);
+    })
+    .eq("id", id);
 
-    if (!error) {
-      navigate('/tasks');
-    } else {
-      alert('Failed to update task: ' + error.message);
-    }
-  };
+  if (!error) {
+    showToast("success", "Task updated successfully", 2000);
+    navigate("/tasks");
+  } else {
+    showToast("error", "Failed to update task", 2000, error.message);
+  }
+};
 
   const DatePicker = ({ label, date, setDate }) => (
     <div className="w-full">

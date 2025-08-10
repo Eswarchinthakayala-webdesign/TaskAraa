@@ -21,7 +21,7 @@ import Sidebar from '../components/Sidebar';
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { CheckCircle2 } from "lucide-react";
-
+import { toast } from "sonner";
 const PRIORITY_COLORS = {
   Low: 'bg-green-500',
   Medium: 'bg-yellow-500',
@@ -115,10 +115,13 @@ export default function TasksPage() {
     }
   };
 
-  const deleteTask = async (id) => {
+   const deleteTask = async (id) => {
     const { error } = await supabase.from('tasks').delete().eq('id', id);
     if (!error) {
       setTasks((prev) => prev.filter((task) => task.id !== id));
+      toast.success("Task deleted successfully ");
+    } else {
+      toast.error("Failed to delete task ");
     }
   };
    if (loading) {
@@ -144,11 +147,12 @@ export default function TasksPage() {
 
   return (
     <div className="min-h-screen bg-[#070720] text-white px-4 pt-18 py-10 sm:px-6 lg:px-12">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4 pt-6 px-4 sm:px-6 lg:px-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-white text-center sm:text-left flex items-center gap-2">
-          <Sidebar />
-          My Tasks
-        </h1>
+      
+      <Sidebar/>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4 pt-6">
+        <h1 className="text-3xl sm:text-3xl md:text-4xl lg:text-4xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-500 to-indigo-500 text-transparent bg-clip-text">
+            My Tasks
+          </h1>
         <div className="flex gap-2">
           <Button
             variant="outline"

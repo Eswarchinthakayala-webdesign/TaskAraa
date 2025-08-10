@@ -13,6 +13,7 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+<<<<<<< HEAD
   // Redirect if user already logged in
   useEffect(() => {
     async function checkSession() {
@@ -27,6 +28,18 @@ export default function Signup() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
+=======
+  // Redirect if already logged in
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) navigate("/dashboard");
+    };
+
+    checkSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+>>>>>>> 4fce87d (Taskaraa App Updated)
       if (session) navigate("/dashboard");
     });
 
@@ -37,6 +50,7 @@ export default function Signup() {
     e.preventDefault();
     setLoading(true);
 
+<<<<<<< HEAD
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -64,6 +78,38 @@ export default function Signup() {
           // If you want to auto-login after signup without email confirmation, 
           // you can do supabase.auth.signIn here. Otherwise, prompt email verification
         }
+=======
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { name } },
+    });
+
+    setLoading(false);
+
+    if (error) {
+      if (error.message.toLowerCase().includes("user already registered")) {
+        showToast("error", "User already exists", 2000, "Redirecting you to login...");
+        setTimeout(() => navigate("/login"), 1500);
+      } else {
+        showToast("error", "Signup failed", 2000, error.message);
+      }
+      return;
+    }
+
+    if (data.user) {
+      // Insert profile info in 'profiles' table
+      const { error: profileError } = await supabase.from("profiles").insert({
+        id: data.user.id,
+        full_name: name,
+      });
+
+      if (profileError) {
+        showToast("error", "Profile save failed", 2000, profileError.message);
+      } else {
+        showToast("success", "Signup successful", 2000, `Welcome to TaskAra, ${name || data.user.email}`);
+        // Usually wait for email confirmation before redirecting
+>>>>>>> 4fce87d (Taskaraa App Updated)
       }
     } catch (error) {
       if (error.message.toLowerCase().includes("user already registered")) {

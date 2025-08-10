@@ -156,7 +156,7 @@ export default function HeroSection() {
   className="px-6 sm:px-8 py-2 sm:py-3 text-base sm:text-lg font-medium bg-gradient-to-r from-purple-600 via-pink-500 to-indigo-600 text-white shadow-xl hover:scale-105 transition-transform rounded-full cursor-pointer"
   onClick={handleStartJourney}
 >
-  Get Started with TaskAra
+  Get Started with TaskAraa
 </Button>
 
         </motion.div>

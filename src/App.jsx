@@ -22,7 +22,7 @@ import RecurringTasksPage from "@/pages/RecurringTasksPage";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import LinkManager from "./pages/LinkManager";
 import { Toaster } from "sonner";
-
+import Settings from "./pages/Settings";
 function App() {
   return (
     <Router>
@@ -36,6 +36,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
            <Route path="/auth/callback" element={<AuthCallback />} />
+           <Route path="/settings" element={<Settings />} />
 
             <Route
               path="/dashboard"
@@ -102,6 +103,7 @@ function App() {
               }
             />
           </Routes>
+          
         </main>
         <Footer />
       </div>

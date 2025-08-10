@@ -36,6 +36,7 @@ import {
 import { cn } from "@/lib/utils";
 import Sidebar from "../components/Sidebar";
 import LoadingPage from "./LoadingPage";
+import { showToast } from "@/utils/toastHelper";
 
 // Custom tooltip for charts
 const CustomTooltip = ({ active, payload, label }) => {
@@ -78,8 +79,12 @@ const [pageLoading, setPageLoading] = useState(true);
     fetchLinks();
   }, []);
 
+useEffect(() => {
+  fetchLinks();
+}, []);
+
 async function fetchLinks() {
-  setPageLoading(true); // start loader
+  setPageLoading(true);
 
   const { data, error } = await supabase
     .from("links")
@@ -87,12 +92,34 @@ async function fetchLinks() {
     .order("created_at", { ascending: false });
 
   if (!error && Array.isArray(data)) {
-    setLinks(data);
-    setFilteredLinks(searchValue ? filteredLinks : data);
+    let updatedLinks = data;
+
+    // Add default TaskAraa link if not present
+    const hasTaskAraa = data.some(
+      (link) => link.url === "https://taskaraa.vercel.app/"
+    );
+
+    if (!hasTaskAraa) {
+      updatedLinks = [
+        {
+          id: "default-taskaraa",
+          title: "TaskAraa",
+          url: "https://taskaraa.vercel.app/",
+          description: "Task Manager App",
+          click_count: 0,
+          created_at: new Date().toISOString(),
+        },
+        ...data,
+      ];
+    }
+
+    setLinks(updatedLinks);
+    setFilteredLinks(searchValue ? filteredLinks : updatedLinks);
   }
 
-  setPageLoading(false); // stop loader
+  setPageLoading(false);
 }
+
 
 
   async function handleLinkClick(id, url) {
@@ -107,36 +134,46 @@ async function fetchLinks() {
   }
 
   async function addLinkToDB() {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) return alert("Please log in");
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
 
-    if (!newLink.title.trim() || !newLink.url.trim()) {
-      return alert("Title and URL are required.");
-    }
-
-    setLoading(true);
-    try {
-      const { error } = await supabase.from("links").insert([
-        {
-          user_id: user.id,
-          title: newLink.title.trim(),
-          url: newLink.url.trim(),
-          description: newLink.description.trim(),
-        },
-      ]);
-      if (error) throw error;
-      setNewLink({ title: "", url: "", description: "" });
-      fetchLinks();
-      setConfirmOpen(false);
-    } catch (err) {
-      console.error("Insert error:", err);
-      alert("Failed to save link: " + (err.message || err));
-    } finally {
-      setLoading(false);
-    }
+  if (userError || !user) {
+    showToast("error", "Please log in to add a link", 3000);
+    return;
   }
+
+  if (!newLink.title.trim() || !newLink.url.trim()) {
+    showToast("error", "Title and URL are required", 3000);
+    return;
+  }
+
+  setLoading(true);
+  try {
+    const { error } = await supabase.from("links").insert([
+      {
+        user_id: user.id,
+        title: newLink.title.trim(),
+        url: newLink.url.trim(),
+        description: newLink.description.trim(),
+      },
+    ]);
+    if (error) throw error;
+
+    setNewLink({ title: "", url: "", description: "" });
+    setConfirmOpen(false);
+    fetchLinks();
+
+    
+    showToast("success", "Link saved successfully", 2000);
+  } catch (err) {
+    showToast("error", "Failed to save link", 3000, err.message);
+  } finally {
+    setLoading(false);
+  }
+}
+
 
   function handleFilter(value) {
     setSearchValue(value);
@@ -154,14 +191,25 @@ async function fetchLinks() {
 async function handleDeleteLink() {
   if (!deleteId) return;
   setDeleting(true);
+
+  // Prevent deleting the default card
+  if (deleteId === "default-taskaraa") {
+    showToast("error", "You cannot delete the default TaskAraa link", 3000);
+    setDeleting(false);
+    setDeleteOpen(false);
+    return;
+  }
+
   const { error } = await supabase.from("links").delete().eq("id", deleteId);
   setDeleting(false);
   setDeleteOpen(false);
   setDeleteId(null);
-  if (!error) {
-    fetchLinks(); // Refresh after delete
+
+  if (error) {
+    showToast("error", "Failed to delete link", 3000, error.message);
   } else {
-    alert("Failed to delete link");
+    showToast("success", "Link deleted successfully", 2000);
+    fetchLinks();
   }
 }
 
@@ -523,7 +571,7 @@ async function handleDeleteLink() {
             <DialogHeader>
               <DialogTitle className="text-white">Confirm Save</DialogTitle>
             </DialogHeader>
-            <div className="px-4 pb-4 text-gray-400">
+            <div className=" pb-4 text-gray-400">
               Are you sure you want to save this link?
             </div>
             <DialogFooter className="flex gap-2 px-4 pb-4">

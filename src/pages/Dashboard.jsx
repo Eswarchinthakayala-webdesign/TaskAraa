@@ -208,9 +208,15 @@ const CustomTooltip = ({ active, payload, label }) => {
   return (
 
     
-    <div className="relative min-h-screen bg-gray-950 text-white p-6 pl-8 overflow-hidden pt-18">
+    <div className="relative min-h-screen bg-gray-950 text-white p-6 pl-8 overflow-hidden pt-20">
         <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-{/*      
+     
+      
+      <motion.div
+        className="absolute bottom-[-8rem] right-[-8rem] w-[20rem] h-[20rem] md:w-[25rem] md:h-[25rem] bg-pink-500 rounded-full opacity-30 blur-3xl"
+        animate={{ x: [0, -120, 120, 0], y: [0, -120, 120, 0] }}
+        transition={{ repeat: Infinity, duration: 25, ease: "easeInOut" }}
+      />
     
        <motion.div
         className="absolute top-[-8rem] left-[-8rem] w-[25rem] h-[25rem] md:w-[30rem] md:h-[30rem] bg-purple-900 rounded-full opacity-40 blur-3xl"
@@ -224,7 +230,20 @@ const CustomTooltip = ({ active, payload, label }) => {
           duration: 20,
           ease: "easeInOut",
         }}
-      /> */}
+      />
+      <motion.div
+        className="absolute top-[-10rem] right-[-8rem] w-[22rem] h-[22rem] md:w-[26rem] md:h-[26rem] bg-purple-900 rounded-full opacity-40 blur-3xl"
+        animate={{
+          x: [0, -80, 80, 0],
+          y: [0, -60, 60, 0],
+          opacity: [0.2, 0.5, 0.2],
+        }}
+        transition={{
+          repeat: Infinity,
+          duration: 22,
+          ease: "easeInOut",
+        }}
+      />
 
       {/* Blob 2 - top-right, moves right to left */}
       <motion.div
@@ -300,7 +319,7 @@ const CustomTooltip = ({ active, payload, label }) => {
       />
       
 <div className="mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 w-full">
-  <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center md:text-left bg-clip-text text-transparent bg-gradient-to-r from-teal-400 via-purple-400 to-pink-500 w-full md:w-auto">
+  <h1 className="text-2xl sm:text-3xl md:text-3xl font-bold text-center md:text-left bg-clip-text text-transparent bg-gradient-to-r from-teal-400 via-purple-400 to-pink-500 w-full md:w-auto">
     Welcome, {userName || 'User'} 👋
   </h1>
 

@@ -28,7 +28,7 @@ const ProtectedRoute = ({ children }) => {
 
   if (loading) return <LoadingPage />;
 
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/" replace />;
 
   return children;
 };
