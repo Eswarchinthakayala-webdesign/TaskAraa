@@ -13,31 +13,21 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Added: Handle session if user is already logged in (e.g. after OAuth redirect)
-useEffect(() => {
-  const checkSession = async () => {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    if (session) {
-      navigate("/dashboard");
-    }
-  };
-  checkSession();
+  // Redirect if already logged in
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) navigate("/dashboard");
+    };
 
-  const {
-    data: { subscription },
-  } = supabase.auth.onAuthStateChange((_event, session) => {
-    if (session) {
-      navigate("/dashboard");
-    }
-  });
+    checkSession();
 
-  return () => {
-    subscription.unsubscribe();
-  };
-}, [navigate]);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) navigate("/dashboard");
+    });
 
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -53,15 +43,10 @@ useEffect(() => {
 
     if (error) {
       if (error.message.toLowerCase().includes("user already registered")) {
-        showToast(
-          "error",
-          "User already exists",
-          2000,
-          "Redirecting you to login..."
-        );
+        showToast("error", "User already exists", 2000, "Redirecting you to login...");
         setTimeout(() => navigate("/login"), 1500);
       } else {
-        showToast("error", "Signup failed ", 2000, error.message);
+        showToast("error", "Signup failed", 2000, error.message);
       }
       return;
     }
@@ -76,10 +61,8 @@ useEffect(() => {
       if (profileError) {
         showToast("error", "Profile save failed", 2000, profileError.message);
       } else {
-        const userName = data.user.user_metadata?.name || data.user.email || "User";
-        showToast("success", "Signup successful", 2000, `Welcome to TaskAra, ${userName}`);
-        // No immediate navigate here: wait for email confirmation or OAuth redirect.
-        // If you want to auto-login, you can call signIn here.
+        showToast("success", "Signup successful", 2000, `Welcome to TaskAra, ${name || data.user.email}`);
+        // Usually wait for email confirmation before redirecting
       }
     }
   };
@@ -87,11 +70,11 @@ useEffect(() => {
   const signInWithGoogle = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-       options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
     });
-    if (error) {
-      showToast("error", "Google Sign-In failed", 4000, error.message);
-    }
+    if (error) showToast("error", "Google Sign-In failed", 4000, error.message);
   };
 
   return (
@@ -101,7 +84,6 @@ useEffect(() => {
         animate={{ x: [0, 80, -80, 0], y: [0, 60, -60, 0], opacity: [0.3, 0.6, 0.3] }}
         transition={{ repeat: Infinity, duration: 20, ease: "easeInOut" }}
       />
-
       <form
         onSubmit={handleSignup}
         className="bg-white/10 backdrop-blur-md p-8 rounded-2xl w-full max-w-md space-y-6 border border-white/20 shadow-xl z-10"
@@ -137,8 +119,8 @@ useEffect(() => {
 
         <Button
           type="submit"
-          className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-pink-600 hover:to-purple-600 text-white text-[18px] font-semibold cursor-pointer"
           disabled={loading}
+          className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-pink-600 hover:to-purple-600 text-white text-[18px] font-semibold cursor-pointer"
         >
           {loading ? "Checking" : "Sign Up"}
         </Button>
@@ -155,10 +137,7 @@ useEffect(() => {
 
         <p className="text-center text-white text-sm mt-2">
           Already have an account?{" "}
-          <a
-            href="/login"
-            className="underline text-pink-400 hover:text-pink-300 transition pl-1 cursor-pointer"
-          >
+          <a href="/login" className="underline text-pink-400 hover:text-pink-300 transition pl-1 cursor-pointer">
             Login
           </a>
         </p>
