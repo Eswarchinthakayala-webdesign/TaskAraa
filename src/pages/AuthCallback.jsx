@@ -10,7 +10,7 @@ export default function AuthCallback() {
   useEffect(() => {
     async function handleAuth() {
       try {
-        // Extract session from URL fragment once and store in Supabase client
+        // Manually parse OAuth session from URL and store it
         const { data, error } = await supabase.auth.getSessionFromUrl({ storeSession: true });
 
         if (error) {
@@ -21,17 +21,17 @@ export default function AuthCallback() {
 
         if (data.session) {
           const userName = data.session.user.user_metadata?.name || data.session.user.email || "User";
-
           showToast("success", "Login successful", 2000, `Welcome back, ${userName}`);
 
-          // Clear the URL hash to avoid re-parsing on reload or route change
+          // Clear URL hash to avoid re-processing on reload or navigation
           if (window.location.hash) {
             window.history.replaceState(null, "", window.location.pathname + window.location.search);
           }
 
-          // Navigate SPA style to dashboard
+          // Navigate SPA style
           navigate("/dashboard");
         } else {
+          // No session found, redirect to login
           navigate("/login");
         }
       } catch (err) {
