@@ -9,7 +9,7 @@ export default function AuthCallback() {
 
   useEffect(() => {
     const handleAuth = async () => {
-      // Parse OAuth tokens from URL and set session
+      // Parse OAuth tokens from URL and store session in Supabase client
       const { data, error } = await supabase.auth.getSessionFromUrl({ storeSession: true });
 
       if (error) {
@@ -21,7 +21,12 @@ export default function AuthCallback() {
       if (data.session) {
         const userName = data.session.user.user_metadata?.name || data.session.user.email || "User";
         showToast("success", "Login successful", 2000, `Welcome back, ${userName}`);
-        navigate("/dashboard");
+
+        // Clean URL hash to avoid re-processing on reload
+        window.history.replaceState(null, "", window.location.pathname);
+
+        // Use full reload to sync session properly
+        window.location.replace("/dashboard");
       } else {
         navigate("/login");
       }
