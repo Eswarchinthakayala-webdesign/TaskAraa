@@ -87,7 +87,7 @@ useEffect(() => {
   const signInWithGoogle = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/dashboard` },
+       options: { redirectTo: `${window.location.origin}/auth/callback` },
     });
     if (error) {
       showToast("error", "Google Sign-In failed", 4000, error.message);
