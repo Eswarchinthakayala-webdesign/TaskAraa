@@ -13,45 +13,59 @@ export default function Login() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkSession = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+  const checkSession = async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
 
-      if (session) {
-        navigate("/dashboard");
-      }
-    };
-    checkSession();
-  }, [navigate]);
+    if (session) {
+      navigate("/dashboard");
+    }
+  };
+  checkSession();
+
+  const {
+    data: { subscription },
+  } = supabase.auth.onAuthStateChange((_event, session) => {
+    if (session) {
+      navigate("/dashboard");
+    }
+  });
+
+  return () => {
+    subscription.unsubscribe();
+  };
+}, [navigate]);
+
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-});
+      email,
+      password,
+    });
+
     setLoading(false);
 
     if (error) {
-    showToast(
-      "error",
-      "Login failed",
-      2000,
-      "Please check your credentials and try again."
-    );
-  } else {
-     const userName = data.user?.user_metadata?.name || data.user?.email || "User";
-    showToast(
-      "success",
-      "Login successful ",
-      2000,
-      `welcome to taskAra, ${userName}`
-    );
-    navigate("/dashboard");
-  }
+      showToast(
+        "error",
+        "Login failed",
+        2000,
+        "Please check your credentials and try again."
+      );
+    } else {
+      const userName = data.user?.user_metadata?.name || data.user?.email || "User";
+      showToast(
+        "success",
+        "Login successful",
+        2000,
+        `Welcome to TaskAra, ${userName}`
+      );
+      navigate("/dashboard");
+    }
   };
 
   const handleGoogleLogin = async () => {

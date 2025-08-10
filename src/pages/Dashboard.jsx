@@ -45,10 +45,22 @@ const Dashboard = () => {
   const [pendingCount, setPendingCount] = useState(0);
   const [userName, setUserName] = useState('');
    const [activeIndex, setActiveIndex] = useState(null);
-  useEffect(() => {
-    fetchUser();
-    fetchTasks();
-  }, []);
+   const navigate=useNavigate()
+ useEffect(() => {
+  const checkUser = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      navigate("/login");
+    } else {
+      fetchUser();   // your function to load profile data
+      fetchTasks();
+    }
+  };
+  checkUser();
+}, [navigate]);
+
 
   const fetchUser = async () => {
   const {
@@ -187,6 +199,8 @@ const CustomTooltip = ({ active, payload, label }) => {
   }
   return null;
 };
+
+
 
 
 

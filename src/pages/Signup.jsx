@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,32 @@ export default function Signup() {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  // Added: Handle session if user is already logged in (e.g. after OAuth redirect)
+useEffect(() => {
+  const checkSession = async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (session) {
+      navigate("/dashboard");
+    }
+  };
+  checkSession();
+
+  const {
+    data: { subscription },
+  } = supabase.auth.onAuthStateChange((_event, session) => {
+    if (session) {
+      navigate("/dashboard");
+    }
+  });
+
+  return () => {
+    subscription.unsubscribe();
+  };
+}, [navigate]);
+
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -40,32 +66,20 @@ export default function Signup() {
       return;
     }
 
-    const user = data.user;
-    if (user) {
-      const { error: profileError } = await supabase
-        .from("profiles")
-        .insert({
-          id: user.id,
-          full_name: name,
-        });
+    if (data.user) {
+      // Insert profile info in 'profiles' table
+      const { error: profileError } = await supabase.from("profiles").insert({
+        id: data.user.id,
+        full_name: name,
+      });
 
       if (profileError) {
-        showToast(
-          "error",
-          "Profile save failed",
-          2000,
-          profileError.message
-        );
+        showToast("error", "Profile save failed", 2000, profileError.message);
       } else {
-         const userName = data.user?.user_metadata?.name || data.user?.email || "User";
-        showToast(
-            
-          "success",
-          "Signup successful ",
-          2000,
-          `welcome to taskAra,${userName}`
-        );
-        setTimeout(() => navigate("/dashboard"), 1500);
+        const userName = data.user.user_metadata?.name || data.user.email || "User";
+        showToast("success", "Signup successful", 2000, `Welcome to TaskAra, ${userName}`);
+        // No immediate navigate here: wait for email confirmation or OAuth redirect.
+        // If you want to auto-login, you can call signIn here.
       }
     }
   };
@@ -82,22 +96,17 @@ export default function Signup() {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#0f0a23] to-[#000000] px-4">
-      {/* Blob animations - same as Login */}
-      {/* Example blob */}
       <motion.div
         className="absolute top-[-8rem] left-[-8rem] w-[25rem] h-[25rem] md:w-[30rem] md:h-[30rem] bg-purple-900 rounded-full opacity-40 blur-3xl"
         animate={{ x: [0, 80, -80, 0], y: [0, 60, -60, 0], opacity: [0.3, 0.6, 0.3] }}
         transition={{ repeat: Infinity, duration: 20, ease: "easeInOut" }}
       />
 
-      {/* Signup Form */}
       <form
         onSubmit={handleSignup}
         className="bg-white/10 backdrop-blur-md p-8 rounded-2xl w-full max-w-md space-y-6 border border-white/20 shadow-xl z-10"
       >
-        <h2 className="text-3xl font-bold text-purple-400 text-center">
-          Join TaskAra
-        </h2>
+        <h2 className="text-3xl font-bold text-purple-400 text-center">Join TaskAra</h2>
 
         <Input
           type="text"
