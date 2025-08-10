@@ -14,7 +14,7 @@ export default function Footer() {
       <div className="border-t border-gray-800 mt-8 pt-4 text-center text-gray-500 text-xs z-10 relative">
         © {new Date().getFullYear()}{" "}
         <Link to="/" className="text-purple-400 hover:text-purple-300 transition">
-          TaskAra
+          TaskAraa
         </Link>{" "}
         · All rights reserved.
       </div>

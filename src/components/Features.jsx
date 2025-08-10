@@ -62,7 +62,7 @@ export default function Features() {
         transition={{ duration: 0.6 }}
       >
         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 text-transparent bg-clip-text mb-3 sm:mb-4">
-          TaskAra Features
+          TaskAraa Features
         </h2>
         <p className="text-gray-400 text-base sm:text-lg max-w-2xl mx-auto px-2">
           All-in-one productivity hub to manage tasks, track time, and collaborate effortlessly.

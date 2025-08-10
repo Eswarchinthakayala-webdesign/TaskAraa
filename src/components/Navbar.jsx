@@ -73,9 +73,10 @@ export default function Navbar() {
         {/* Logo */}
         <Link
           to="/"
-          className="text-3xl font-bold bg-gradient-to-r from-purple-400 via-pink-500 to-indigo-500 text-transparent bg-clip-text"
+          className="text-3xl flex font-bold bg-gradient-to-r from-purple-400 via-pink-500 to-indigo-500 text-transparent bg-clip-text"
         >
-          TaskAra
+            <img src="/logo.png" alt="" width="35px" height="25px" />
+          TaskAraa
         </Link>
 
         {/* Desktop Links */}
