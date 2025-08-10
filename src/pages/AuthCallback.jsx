@@ -8,11 +8,9 @@ export default function AuthCallback() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkSession = async () => {
-      const {
-        data: { session },
-        error,
-      } = await supabase.auth.getSession();
+    const handleAuth = async () => {
+      // Parse OAuth tokens from URL and set session
+      const { data, error } = await supabase.auth.getSessionFromUrl({ storeSession: true });
 
       if (error) {
         showToast("error", "Authentication failed", 3000, error.message);
@@ -20,8 +18,8 @@ export default function AuthCallback() {
         return;
       }
 
-      if (session) {
-        const userName = session.user.user_metadata?.name || session.user.email || "User";
+      if (data.session) {
+        const userName = data.session.user.user_metadata?.name || data.session.user.email || "User";
         showToast("success", "Login successful", 2000, `Welcome back, ${userName}`);
         navigate("/dashboard");
       } else {
@@ -29,7 +27,7 @@ export default function AuthCallback() {
       }
     };
 
-    checkSession();
+    handleAuth();
   }, [navigate]);
 
   return <LoadingPage />;
