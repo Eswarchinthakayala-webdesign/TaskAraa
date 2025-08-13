@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 
 export default function LoadingPage() {
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-b from-[#0f0f1b] to-[#1b1b2f] text-white overflow-hidden">
+    <div className="flex flex-col rounded items-center justify-center h-screen bg-gradient-to-b from-[#0f0f1b] to-[#1b1b2f] text-white overflow-hidden">
       
       {/* Spinning Ring */}
       <motion.div

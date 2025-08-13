@@ -24,7 +24,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import LoadingPage from './LoadingPage';
 
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEYY);
 
 const TaskDetails = () => {
   const { id } = useParams();

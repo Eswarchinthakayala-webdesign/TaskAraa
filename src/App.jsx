@@ -23,11 +23,15 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import LinkManager from "./pages/LinkManager";
 import { Toaster } from "sonner";
 import Settings from "./pages/Settings";
+import QuizPage from "./pages/QuizPage";
+import LeaderboardPage from "@/pages/LeaderboardPage";
+import DashboardPage2 from "./pages/DashboardPage";
+import QuizDetailsPage from "./pages/QuizDetailsPage";
 function App() {
   return (
     <Router>
       <ScrollToTop />
-      <div className="relative min-h-screen bg-black text-foreground custom-scrollbar">
+      <div className="relative min-h-screen bg-gray-950 text-foreground custom-scrollbar">
         <Navbar />
         <main className="relative z-10">
           <Routes>
@@ -37,7 +41,20 @@ function App() {
             <Route path="/signup" element={<Signup />} />
            <Route path="/auth/callback" element={<AuthCallback />} />
            <Route path="/settings" element={<Settings />} />
-
+          <Route path="/quiz" element={<QuizPage />} />
+           <Route path="/quiz-dashboard" element={
+             <ProtectedRoute>
+             <DashboardPage2 />
+             </ProtectedRoute>} />
+            <Route path="/leaderboard" element={
+              <ProtectedRoute>
+              <LeaderboardPage />
+              </ProtectedRoute>
+              } />
+            <Route path="/quiz/:quizId" element={
+              <ProtectedRoute>
+              <QuizDetailsPage />
+              </ProtectedRoute>} />
             <Route
               path="/dashboard"
               element={

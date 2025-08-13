@@ -16,7 +16,9 @@ export default function Signup() {
   // Redirect if already logged in
   useEffect(() => {
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       if (session) navigate("/dashboard");
     };
 
@@ -29,6 +31,15 @@ export default function Signup() {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
+  const createOrUpdateProfile = async (userId, fullName, emailAddress) => {
+    // Upsert profile (insert if not exists, update if exists)
+    const { error: profileError } = await supabase.from("profiles").upsert({
+      id: userId,
+      full_name: fullName || null,
+    });
+    return profileError;
+  };
+
   const handleSignup = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -36,12 +47,13 @@ export default function Signup() {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { name } },
+      options: {
+        data: { name }, // This sets auth.user.user_metadata.name but not your profiles table
+      },
     });
 
-    setLoading(false);
-
     if (error) {
+      setLoading(false);
       if (error.message.toLowerCase().includes("user already registered")) {
         showToast("error", "User already exists", 2000, "Redirecting you to login...");
         setTimeout(() => navigate("/login"), 1500);
@@ -52,19 +64,17 @@ export default function Signup() {
     }
 
     if (data.user) {
-      // Insert profile info in 'profiles' table
-      const { error: profileError } = await supabase.from("profiles").insert({
-        id: data.user.id,
-        full_name: name,
-      });
+      // Insert or update profile row
+      const profileError = await createOrUpdateProfile(data.user.id, name, email);
 
       if (profileError) {
         showToast("error", "Profile save failed", 2000, profileError.message);
       } else {
-        showToast("success", "Signup successful", 2000, `Welcome to TaskAra, ${name || data.user.email}`);
-        // Usually wait for email confirmation before redirecting
+        showToast("success", "Signup successful", 2000, `Welcome to TaskAra, ${name || email}`);
       }
     }
+
+    setLoading(false);
   };
 
   const signInWithGoogle = async () => {
@@ -74,7 +84,10 @@ export default function Signup() {
         redirectTo: `${window.location.origin}/auth/callback`,
       },
     });
-    if (error) showToast("error", "Google Sign-In failed", 4000, error.message);
+
+    if (error) {
+      showToast("error", "Google Sign-In failed", 4000, error.message);
+    }
   };
 
   return (
@@ -137,7 +150,10 @@ export default function Signup() {
 
         <p className="text-center text-white text-sm mt-2">
           Already have an account?{" "}
-          <a href="/login" className="underline text-pink-400 hover:text-pink-300 transition pl-1 cursor-pointer">
+          <a
+            href="/login"
+            className="underline text-pink-400 hover:text-pink-300 transition pl-1 cursor-pointer"
+          >
             Login
           </a>
         </p>
