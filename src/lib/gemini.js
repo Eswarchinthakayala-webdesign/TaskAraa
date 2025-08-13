@@ -35,7 +35,7 @@ Rules:
     }
 
     const data = await res.json();
-    console.log(data)
+    
     let rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
     // Clean up potential code fences or stray text
