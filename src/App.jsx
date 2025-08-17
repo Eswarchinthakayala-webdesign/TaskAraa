@@ -27,11 +27,13 @@ import QuizPage from "./pages/QuizPage";
 import LeaderboardPage from "@/pages/LeaderboardPage";
 import DashboardPage2 from "./pages/DashboardPage";
 import QuizDetailsPage from "./pages/QuizDetailsPage";
+import ResumesPage from "./pages/ResumesPage";
+import ResumeEditor from "./pages/ResumeEditor";
 function App() {
   return (
     <Router>
       <ScrollToTop />
-      <div className="relative min-h-screen bg-gray-950 text-foreground custom-scrollbar">
+      <div className="relative min-h-screen bg-[#070720] text-foreground custom-scrollbar">
         <Navbar />
         <main className="relative z-10">
           <Routes>
@@ -42,6 +44,16 @@ function App() {
            <Route path="/auth/callback" element={<AuthCallback />} />
            <Route path="/settings" element={<Settings />} />
           <Route path="/quiz" element={<QuizPage />} />
+           <Route path="/resumes" element={
+            <ProtectedRoute>
+            <ResumesPage />
+            </ProtectedRoute>
+            } />
+          <Route path="/resume/new" element={
+            <ProtectedRoute>
+            <ResumeEditor />
+            </ProtectedRoute>} />
+          <Route path="/resume/:id/edit" element={<ResumeEditor />} />
            <Route path="/quiz-dashboard" element={
              <ProtectedRoute>
              <DashboardPage2 />

@@ -150,7 +150,7 @@ export default function TasksPage() {
       
       <Sidebar/>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4 pt-6">
-        <h1 className="text-3xl sm:text-3xl md:text-4xl lg:text-4xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-500 to-indigo-500 text-transparent bg-clip-text">
+        <h1 className="text-2xl sm:text-2xl md:text-3xl lg:text-3xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-500 to-indigo-500 text-transparent bg-clip-text">
             My Tasks
           </h1>
         <div className="flex gap-2">

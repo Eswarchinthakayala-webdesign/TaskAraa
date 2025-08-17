@@ -318,7 +318,7 @@ const CustomTooltip = ({ active, payload, label }) => {
         }}
       />
       
-<div className="mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 w-full">
+<div className="mb-8 flex flex-col max-w-7xl mx-auto  md:flex-row items-start md:items-center justify-between gap-4 w-full">
   <h1 className="text-2xl sm:text-3xl md:text-3xl font-bold text-center md:text-left bg-clip-text text-transparent bg-gradient-to-r from-teal-400 via-purple-400 to-pink-500 w-full md:w-auto">
     Welcome, {userName || 'User'} 👋
   </h1>

@@ -109,7 +109,7 @@ export default function RecurringTasksPage() {
       <main className="flex-grow max-w-7xl mx-auto space-y-8 w-full">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <h1 className="text-3xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-500 to-indigo-500 bg-clip-text text-transparent">
+          <h1 className="text-2xl sm:text-3xl font-extrabold bg-gradient-to-r from-purple-400 via-pink-500 to-indigo-500 bg-clip-text text-transparent">
             Calendar & Recurring Tasks
           </h1>
           <p className="text-gray-400 text-sm max-w-md">
