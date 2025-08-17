@@ -21,6 +21,7 @@ import {
 
 import { toast } from "sonner";
 import LoadingPage from "./LoadingPage";
+import Sidebar from "../components/Sidebar";
 
 /**
  * ============================================================================
@@ -581,6 +582,8 @@ export default function ResumesPage() {
   // ---------------------------------------------------------------------------
   return (
     <div className="min-h-screen p-10 pt-20 bg-[#070720] text-gray-100">
+
+      <Sidebar/>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div

@@ -82,6 +82,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import Sidebar from "../components/Sidebar";
 
 // --------------------------- COLORS (SAFE) ---------------------------
 const COLORS = {
@@ -953,6 +954,8 @@ export default function ResumeEditor() {
         color: COLORS.appText,
       }}
     >
+      <Sidebar/>
+      
       {/* Modern page heading */}
       <div className="pt-6 max-w-7xl bg-[#070720] mx-auto mb-6">
         <motion.h1
