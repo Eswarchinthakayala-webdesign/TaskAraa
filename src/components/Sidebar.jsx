@@ -14,6 +14,7 @@ import {
   CircleQuestionMark,
   LayoutDashboard,
   FileText,
+  NotepadText,
 } from "lucide-react";
 
 export default function Sidebar() {
@@ -30,6 +31,7 @@ export default function Sidebar() {
      {name:"Quiz Analytics",path:"/quiz-dashboard",icon:<LayoutDashboard size={20}/>},
        {name:"Quiz",path:"/quiz", icon:<CircleQuestionMark size={20}/>} ,
        {name:"Resumes",path:"/resumes",icon:<FileText size={20}/>},
+       {name:"Notes",path:"/notes",icon:<NotepadText size={20}/>},
     { name: "Settings", path: "/settings", icon: <Settings size={20} /> },
   ];
 

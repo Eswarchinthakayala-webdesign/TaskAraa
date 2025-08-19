@@ -29,6 +29,9 @@ import DashboardPage2 from "./pages/DashboardPage";
 import QuizDetailsPage from "./pages/QuizDetailsPage";
 import ResumesPage from "./pages/ResumesPage";
 import ResumeEditor from "./pages/ResumeEditor";
+import NotesDashboard from "./pages/NotesDashboard";
+import FolderView from "@/pages/FolderView";
+import NotePage from "./pages/NotePage";
 function App() {
   return (
     <Router>
@@ -43,6 +46,26 @@ function App() {
             <Route path="/signup" element={<Signup />} />
            <Route path="/auth/callback" element={<AuthCallback />} />
            <Route path="/settings" element={<Settings />} />
+          <Route path="/notes" element={
+            <ProtectedRoute>
+            <NotesDashboard />
+            </ProtectedRoute>
+            } />
+
+      {/* Folder view (all notes inside one folder) */}
+      <Route path="/folder/:id" element={
+        
+        <ProtectedRoute>
+        <FolderView />
+        </ProtectedRoute>
+        } />
+
+      {/* Single Note page */}
+      <Route path="/note/:id" element={
+        <ProtectedRoute>
+        <NotePage />
+    
+    </ProtectedRoute>} />
           <Route path="/quiz" element={<QuizPage />} />
            <Route path="/resumes" element={
             <ProtectedRoute>
