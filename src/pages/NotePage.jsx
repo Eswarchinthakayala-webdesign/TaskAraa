@@ -430,7 +430,7 @@ export default function NotePage() {
                       value={aiPrompt}
                       onChange={(e) => setAiPrompt(e.target.value)}
                       placeholder="Explain React hooks..."
-                      className="bg-[#0b0b24] border-purple-800"
+                      className="bg-[#0b0b24] border-purple-800 text-white"
                     />
                     <DialogFooter>
                       <Button
@@ -637,7 +637,7 @@ export default function NotePage() {
                         <DialogTitle className="text-white">AI Note Generator</DialogTitle>
                         <DialogDescription>Generate structured notes using Gemini AI.</DialogDescription>
                       </DialogHeader>
-                      <Textarea value={aiPrompt} onChange={(e) => setAiPrompt(e.target.value)} placeholder="Explain React hooks..." className="bg-[#0b0b24] border-purple-800" />
+                      <Textarea value={aiPrompt} onChange={(e) => setAiPrompt(e.target.value)} placeholder="Explain React hooks..." className="bg-[#0b0b24] border-purple-800 text-white" />
                       <DialogFooter>
                         <Button onClick={handleGenerateAI} disabled={aiBusy} className="bg-gradient-to-br from-purple-600 to-fuchsia-600">
                           {aiBusy ? <Loader2 className="animate-spin mr-2" /> : null}
