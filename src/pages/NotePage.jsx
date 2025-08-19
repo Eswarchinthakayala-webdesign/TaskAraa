@@ -563,8 +563,8 @@ export default function NotePage() {
                 <div className="flex items-center justify-between p-3 border-t border-purple-900/20">
                   <div className="text-xs text-purple-200/60">Rendered Markdown</div>
                   <div className="flex items-center gap-2">
-                    <Button size="sm" onClick={handleDownloadPDF}><Download/></Button>
-                    <Button variant="ghost" size="sm" onClick={() => setMode("study")}>Study Mode</Button>
+                    <Button size="sm" className="bg-purple-400 text-black hover:bg-purple-500 cursor-pointer" onClick={handleDownloadPDF}><Download/></Button>
+                    <Button variant="ghost" className="bg-purple-400 hover:bg-purple-500 cursor-pointer" size="sm" onClick={() => setMode("study")}>Study Mode</Button>
                   </div>
                 </div>
               </Card>

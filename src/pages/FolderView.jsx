@@ -443,7 +443,7 @@ function NoteCard({ note, onOpen, onEdit, onDelete, onReadToggle, isSpeaking, on
             </div>
 
             {/* Actions */}
-            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition">
+            <div className="flex gap-1  transition">
               <Button variant="ghost" size="icon" className="hover:bg-black cursor-pointer" onClick={onEdit} title="Edit">
                 <Edit size={16} className="text-blue-400" />
               </Button>
@@ -745,7 +745,7 @@ export default function FolderView() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
         <div className="flex items-center gap-2">
-          <Button variant="ghost" onClick={() => navigate("/notes")}>
+          <Button variant="ghost" className="cursor-pointer hover:bg-purple-500" onClick={() => navigate("/notes")}>
             <ArrowLeft size={18} />
           </Button>
           <div className="min-h-[24px] flex items-center">
