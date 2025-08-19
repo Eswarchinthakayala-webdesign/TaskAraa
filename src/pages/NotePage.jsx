@@ -60,6 +60,7 @@ import {
   Play,
   Pause,
   RotateCcw,
+  Wind,
 } from "lucide-react";
 
 import { downloadNotePDF } from "@/utils/NotePDF";
@@ -317,7 +318,7 @@ export default function NotePage() {
                 onClick={() =>
                   navigate(note.folder_id ? `/folder/${note.folder_id}` : "/notes")
                 }
-                className="text-purple-300 hover:text-white"
+                className="text-purple-300 hover:bg-purple-400 cursor-pointer  hover:text-white"
                 aria-label="Back"
               >
                 <ArrowLeft />
@@ -356,16 +357,17 @@ export default function NotePage() {
               <div className="hidden lg:flex items-center gap-1">
                 <Button
                   variant="outline"
-                  className="border-purple-700/30 text-purple-300"
+                  className="border-purple-700/30 text-purple-500 cursor-pointer"
                   onClick={() => setMode((m) => (m === "study" ? "edit" : "study"))}
+
                 >
                   {mode === "study" ? (
                     <>
-                      <Edit3 className="mr-2" /> Edit
+                      <Edit3 /> Edit
                     </>
                   ) : (
                     <>
-                      <BookOpen className="mr-2" /> Study
+                      <BookOpen  /> Study
                     </>
                   )}
                 </Button>
@@ -376,15 +378,15 @@ export default function NotePage() {
                       {formatTime(seconds)}
                     </div>
                     {!isRunning ? (
-                      <Button variant="ghost" size="icon" onClick={startTimer} className="text-green-400">
+                      <Button variant="ghost" size="icon" onClick={startTimer} className="text-green-400 cursor-pointer hover:bg-purple-400">
                         <Play />
                       </Button>
                     ) : (
-                      <Button variant="ghost" size="icon" onClick={pauseTimer} className="text-yellow-400">
+                      <Button variant="ghost" size="icon" onClick={pauseTimer} className="text-yellow-400 cursor-pointer hover:bg-purple-400">
                         <Pause />
                       </Button>
                     )}
-                    <Button variant="ghost" size="icon" onClick={resetTimer} className="text-red-400">
+                    <Button variant="ghost" size="icon" onClick={resetTimer} className="text-red-400 cursor-pointer hover:bg-purple-400">
                       <RotateCcw />
                     </Button>
                   </>
@@ -401,11 +403,15 @@ export default function NotePage() {
                   </Button>
                 )}
 
-                <Button variant="ghost" size="icon" onClick={handleDownloadPDF}>
+                <Button variant="ghost" size="icon" onClick={handleDownloadPDF}
+                className="cursor-pointer hover:bg-purple-400"
+                >
                   <Download />
                 </Button>
 
-                <Button variant="ghost" size="icon" onClick={speaking ? handleStopSpeak : handleSpeak}>
+                <Button variant="ghost" size="icon" onClick={speaking ? handleStopSpeak : handleSpeak}
+                className="cursor-pointer hover:bg-purple-400"
+                >
                   <Volume2 className={speaking ? "text-green-400" : ""} />
                 </Button>
 
@@ -471,7 +477,7 @@ export default function NotePage() {
                   </PopoverTrigger>
                   <PopoverContent className="w-56 bg-[#0d0d24] border border-purple-800">
                     <div className="flex flex-col gap-2 p-2">
-                      <Button  size="sm" onClick={() => setMode((m) => (m === "study" ? "edit" : "study"))}>
+                      <Button  size="sm"  className="bg-purple-500 cursor-pointer hover:bg-purple-400" onClick={() => setMode((m) => (m === "study" ? "edit" : "study"))}>
                         {mode === "study" ? "Switch to Edit" : "Switch to Study"}
                       </Button>
 
@@ -481,20 +487,20 @@ export default function NotePage() {
                             {formatTime(seconds)}
                           </div>
                           {!isRunning ? (
-                            <Button size="sm" onClick={startTimer}>Start</Button>
+                            <Button size="sm"  className="bg-purple-500 cursor-pointer hover:bg-purple-400" onClick={startTimer}>Start</Button>
                           ) : (
-                            <Button size="sm" onClick={pauseTimer}>Pause</Button>
+                            <Button size="sm"  className="bg-amber-500 cursor-pointer hover:bg-amber-400" onClick={pauseTimer}>Pause</Button>
                           )}
-                          <Button size="sm" variant="ghost"  onClick={resetTimer}>Reset</Button>
+                          <Button size="sm" variant="ghost"  onClick={resetTimer} className="bg-purple-500 text-white hover:text-white hover:bg-purple-400 cursor-pointer"><RotateCcw/> Reset </Button>
                         </div>
                       )}
 
-                      <Button size="sm" className="bg-purple-500" onClick={handleDownloadPDF}>Export PDF</Button>
-                      <Button size="sm" onClick={speaking ? handleStopSpeak : handleSpeak}>
-                        {speaking ? "Stop Read Out" : "Read Out"}
+                      <Button size="sm" className="bg-purple-500 cursor-pointer hover:bg-purple-400" onClick={handleDownloadPDF}><Download/> Export PDF</Button>
+                      <Button size="sm" onClick={speaking ? handleStopSpeak : handleSpeak} className="cursor-pointer bg-purple-500 hover:bg-purple-400">
+                        <Volume2 className={speaking ? "text-green-400" : ""} /> {speaking?"Listening....":"Read Out"}
                       </Button>
-                      <Button size="sm"  onClick={() => setAiOpen(true)}>AI Generate</Button>
-                      <Button size="sm" variant="destructive" onClick={() => setOpenDelete(true)}>Delete</Button>
+                      <Button size="sm"  onClick={() => setAiOpen(true)} className="cursor-pointer hover:bg-purple-400 bg-purple-500"><Wand2/>AI</Button>
+                      <Button size="sm" variant="destructive" onClick={() => setOpenDelete(true)} className="cursor-pointer"><Trash2/> Delete</Button>
                       <div className="flex items-center gap-2 px-2 py-1 text-orange-300 text-sm">
                         <Flame className="w-4 h-4" /> {streak} day streak
                       </div>
@@ -557,7 +563,7 @@ export default function NotePage() {
                 <div className="flex items-center justify-between p-3 border-t border-purple-900/20">
                   <div className="text-xs text-purple-200/60">Rendered Markdown</div>
                   <div className="flex items-center gap-2">
-                    <Button size="sm" onClick={handleDownloadPDF}>Export PDF</Button>
+                    <Button size="sm" onClick={handleDownloadPDF}><Download/></Button>
                     <Button variant="ghost" size="sm" onClick={() => setMode("study")}>Study Mode</Button>
                   </div>
                 </div>
@@ -616,13 +622,15 @@ export default function NotePage() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <Button size="sm" className="cursor-pointer bg-purple-500" onClick={handleDownloadPDF}>Export PDF</Button>
-                  <Button variant="ghost" size="sm" className="cursor-pointer bg-purple-500" onClick={speaking ? handleStopSpeak : handleSpeak}>
-                    {speaking ? "Stop Read Out" : "Read Out"}
+                  <Button size="sm" className="cursor-pointer bg-purple-500 text-black hover:bg-purple-400" onClick={handleDownloadPDF}><Download/></Button>
+                  <Button variant="ghost" size="sm" className="cursor-pointer bg-purple-500 hover:bg-purple-400" onClick={speaking ? handleStopSpeak : handleSpeak}>
+                    <Volume2 className={speaking ? "text-green-400" : ""} />
                   </Button>
                   <Dialog open={aiOpen} onOpenChange={setAiOpen}>
                     <DialogTrigger asChild>
-                      <Button variant="ghost" className="bg-purple-400 cursor-pointer" size="sm">AI</Button>
+                      <Button variant="ghost" className="bg-purple-500 cursor-pointer hover:bg-purple-400" size="sm">
+                         <Wand2 />
+                      </Button>
                     </DialogTrigger>
                     <DialogContent className="bg-[#11112b] border border-purple-800">
                       <DialogHeader>
