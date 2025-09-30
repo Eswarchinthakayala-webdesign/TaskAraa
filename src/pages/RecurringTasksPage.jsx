@@ -10,10 +10,13 @@ import { Eraser, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from "luc
 import { Button } from "@/components/ui/button";
 
 /**
- * RecurringTasksPage (final)
- * - Fetches all tasks (no restrictive query)
- * - Expands occurrences for the visible window (month) by calling expandTaskOccurrences(task, windowStart, windowEnd)
- * - Improved date selection, styling, top padding to avoid navbar overlap
+ * RecurringTasksPage (fixed)
+ *
+ * Fixes:
+ * - Every date cell is clickable (popover won't block clicks)
+ * - Selected date gets consistent special styling
+ * - Normalizes dates for reliable comparison
+ * - Adds top padding to avoid navbar overlap
  */
 
 export default function RecurringTasksPage() {
@@ -22,7 +25,7 @@ export default function RecurringTasksPage() {
   const [loading, setLoading] = useState(true);
   const [rawTasks, setRawTasks] = useState([]);
   const [occurrences, setOccurrences] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(null); // null => show whole month
+  const [selectedDate, setSelectedDate] = useState(null); // null => month view
 
   // Calendar controls
   const [year, setYear] = useState(now.getFullYear());
@@ -36,7 +39,13 @@ export default function RecurringTasksPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year, month]);
 
-  // Fetch tasks from Supabase (no date filters) and expand occurrences for current month window
+  // Helper: normalize a Date to YYYY-MM-DD (time 00:00:00) so comparisons are reliable
+  const normalizeDate = (d) => {
+    const dt = d ? new Date(d) : null;
+    return dt ? new Date(dt.getFullYear(), dt.getMonth(), dt.getDate()) : null;
+  };
+
+  // Fetch tasks & expand occurrences within the visible month window
   const fetchAndExpand = async () => {
     setLoading(true);
 
@@ -56,13 +65,15 @@ export default function RecurringTasksPage() {
 
     const expanded = [];
     for (const task of tasks) {
-      // IMPORTANT: expandTaskOccurrences should accept windowStart/windowEnd
+      // pass window to the recurrence util so it only expands what's needed
       const occDates = expandTaskOccurrences(task, windowStart, windowEnd);
+
       occDates.forEach((d) => {
-        const occ = new Date(d);
+        // normalize occurrence date to midnight for consistent comparisons
+        const occNorm = normalizeDate(new Date(d));
         let status = task.status || "pending";
 
-        // If task has a due_date, mark as overdue if applicable
+        // Mark overdue based on task's due_date / due_time if needed
         if (task.due_date) {
           const dueDateTime = task.due_time
             ? new Date(`${task.due_date}T${task.due_time}`)
@@ -74,22 +85,22 @@ export default function RecurringTasksPage() {
 
         expanded.push({
           ...task,
-          occurrenceDate: occ,
-          date: occ,
+          occurrenceDate: occNorm,
+          date: occNorm,
           status,
-          occurrenceKey: `${task.id}-${occ.toISOString().slice(0, 10)}`,
+          occurrenceKey: `${task.id}-${occNorm.toISOString().slice(0, 10)}`,
         });
       });
     }
 
-    // Sort chronologically
+    // Sort by date ascending
     expanded.sort((a, b) => a.occurrenceDate - b.occurrenceDate);
 
     setOccurrences(expanded);
     setLoading(false);
   };
 
-  // Map occurrences only for the visible month (for rendering calendar badges + tooltips)
+  // map occurrences to calendar-friendly objects (for badges/previews)
   const occurrencesForCalendar = useMemo(() => {
     return occurrences
       .filter((o) => o.occurrenceDate.getFullYear() === year && o.occurrenceDate.getMonth() === month)
@@ -102,16 +113,14 @@ export default function RecurringTasksPage() {
       }));
   }, [occurrences, year, month]);
 
-  // Tasks to show in right panel: either selected date's tasks or whole month, then apply status filter
+  // Tasks to show on right panel (selected date or whole month), filtered by status
   const displayedTasks = useMemo(() => {
     let list = [];
-
     if (selectedDate) {
-      list = occurrences.filter((o) => isSameDay(new Date(o.occurrenceDate), selectedDate));
+      const sel = normalizeDate(selectedDate);
+      list = occurrences.filter((o) => isSameDay(new Date(o.occurrenceDate), sel));
     } else {
-      list = occurrences.filter(
-        (o) => o.occurrenceDate.getFullYear() === year && o.occurrenceDate.getMonth() === month
-      );
+      list = occurrences.filter((o) => o.occurrenceDate.getFullYear() === year && o.occurrenceDate.getMonth() === month);
     }
 
     if (statusFilter !== "all") {
@@ -121,13 +130,13 @@ export default function RecurringTasksPage() {
     return list;
   }, [occurrences, selectedDate, year, month, statusFilter]);
 
-  // when a date cell is clicked
+  // When clicking a date: toggle selection (click again clears)
   const handleDateClick = (date) => {
-    // toggle selection: if already selected, clear it; otherwise select it
-    if (selectedDate && isSameDay(new Date(date), selectedDate)) {
+    const norm = normalizeDate(date);
+    if (selectedDate && isSameDay(norm, normalizeDate(selectedDate))) {
       setSelectedDate(null);
     } else {
-      setSelectedDate(new Date(date));
+      setSelectedDate(norm);
     }
   };
 
@@ -135,7 +144,7 @@ export default function RecurringTasksPage() {
     const t = new Date();
     setYear(t.getFullYear());
     setMonth(t.getMonth());
-    setSelectedDate(t);
+    setSelectedDate(normalizeDate(t));
   };
 
   // Month navigation helpers
@@ -157,7 +166,7 @@ export default function RecurringTasksPage() {
   ];
 
   return (
-    // top padding so content doesn't sit under navbar (adjust value to match your navbar height)
+    // top padding to avoid navbar overlap (increase/decrease to match your navbar)
     <div className="min-h-screen bg-gradient-to-b from-[#060617] via-[#070720] to-[#0a0a13] text-white px-4 pt-28 pb-10 lg:px-12 flex gap-6">
       <Sidebar />
 
@@ -168,12 +177,12 @@ export default function RecurringTasksPage() {
             <h1 className="text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-indigo-400">
               Calendar & Recurring Tasks
             </h1>
-            <p className="text-gray-400 mt-1">Pick a month or click a day to view tasks. Hover for task previews.</p>
+            <p className="text-gray-400 mt-1">Pick a month or click a day to view tasks. Hover for quick previews.</p>
           </div>
 
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 bg-[#0f1020] border border-purple-700 rounded-md p-2">
-              <button onClick={prevMonth} className="p-1 rounded hover:bg-[rgba(255,255,255,0.02)]">
+              <button onClick={prevMonth} className="p-1 rounded hover:bg-[rgba(255,255,255,0.02)]" aria-label="Previous month">
                 <ChevronLeft size={18} />
               </button>
 
@@ -182,7 +191,7 @@ export default function RecurringTasksPage() {
                 <div className="text-xs text-gray-400">{year}</div>
               </div>
 
-              <button onClick={nextMonth} className="p-1 rounded hover:bg-[rgba(255,255,255,0.02)]">
+              <button onClick={nextMonth} className="p-1 rounded hover:bg-[rgba(255,255,255,0.02)]" aria-label="Next month">
                 <ChevronRight size={18} />
               </button>
             </div>
@@ -256,7 +265,6 @@ export default function RecurringTasksPage() {
               </div>
             ) : (
               <div className="grid gap-3">
-                {/* If you want a custom details view instead of TaskListSections, you can replace this block */}
                 <TaskListSections tasks={displayedTasks} />
                 {displayedTasks.length === 0 && !loading && (
                   <div className="p-6 bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.03)] rounded-md text-gray-400">
@@ -274,17 +282,24 @@ export default function RecurringTasksPage() {
 
 /* -------------------------
    CalendarViewStyled
-   Renders the month grid, color-coded dots, selected style, and hover preview
+   - ensures buttons sit above the hover preview popovers (z-10)
+   - popovers are non-interactive (pointer-events-none) so they never block clicks
+   - blank placeholders have min height so grid rows align
    ------------------------- */
 function CalendarViewStyled({ year, month, occurrences, onDateClick, selectedDate }) {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const firstDayIndex = new Date(year, month, 1).getDay();
-  const blanks = Array.from({ length: firstDayIndex }, (_, i) => <div key={"b" + i} />);
+
+  // Render blanks with min height to keep grid rows aligned
+  const blanks = Array.from({ length: firstDayIndex }, (_, i) => (
+    <div key={"b" + i} className="min-h-[72px]" />
+  ));
+
   const today = new Date();
 
   // Build map date->occurrences
   const dateMap = {};
-  occurrences.forEach((o) => {
+  (occurrences || []).forEach((o) => {
     const key = o.date.toISOString().slice(0, 10);
     if (!dateMap[key]) dateMap[key] = [];
     dateMap[key].push(o);
@@ -307,20 +322,22 @@ function CalendarViewStyled({ year, month, occurrences, onDateClick, selectedDat
     const isSelected = selectedDate && isSameDaySimple(d, selectedDate);
     const isToday = isSameDaySimple(d, today);
 
-    // selected style takes precedence; today gets ring when not selected
+    // Selected style takes precedence; today shows ring when not selected
     const baseBtnClasses = [
       "w-full h-full text-left p-3 rounded-md transition",
       "min-h-[72px] flex flex-col",
       isSelected ? "bg-gradient-to-br from-purple-700 to-indigo-700 text-white shadow-lg" : "hover:bg-[rgba(255,255,255,0.02)] text-gray-200",
       isToday && !isSelected ? "ring-2 ring-purple-600" : "",
+      "relative z-10", // make sure the button sits above the non-interactive popover
     ].filter(Boolean).join(" ");
 
     dayCells.push(
-      <div key={day} className="relative group">
+      <div key={`day-${year}-${month}-${day}`} className="relative group">
         <button
           onClick={() => onDateClick(d)}
           type="button"
           aria-label={`Day ${day}, ${items.length} task(s)`}
+          aria-pressed={isSelected ? "true" : "false"}
           className={baseBtnClasses}
         >
           <div className="flex items-start justify-between">
@@ -347,10 +364,13 @@ function CalendarViewStyled({ year, month, occurrences, onDateClick, selectedDat
           </div>
         </button>
 
-        {/* Hover preview popover */}
+        {/* Hover preview popover (non-interactive so it cannot block clicks) */}
         {items.length > 0 && (
-          <div className="absolute left-1/2 transform -translate-x-1/2 -translate-y-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
-            <div className="w-64 bg-[#0b0b14] border border-[rgba(255,255,255,0.04)] rounded-md p-3 text-sm shadow-lg pointer-events-auto">
+          <div
+            className="absolute left-1/2 transform -translate-x-1/2 -translate-y-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-0"
+            aria-hidden="true"
+          >
+            <div className="w-64 bg-[#0b0b14] border border-[rgba(255,255,255,0.04)] rounded-md p-3 text-sm shadow-lg pointer-events-none">
               <div className="font-semibold mb-1">Tasks</div>
               <div className="max-h-40 overflow-y-auto space-y-2">
                 {items.map((it, idx) => (
