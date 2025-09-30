@@ -10,10 +10,10 @@ import { Eraser, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from "luc
 import { Button } from "@/components/ui/button";
 
 /**
- * RecurringTasksPage
- * - Fetches all tasks from Supabase
- * - Expands occurrences for visible month using expandTaskOccurrences(task, windowStart, windowEnd)
- * - Modern dashboard UI with filters, tooltips, and Today button
+ * RecurringTasksPage (final)
+ * - Fetches all tasks (no restrictive query)
+ * - Expands occurrences for the visible window (month) by calling expandTaskOccurrences(task, windowStart, windowEnd)
+ * - Improved date selection, styling, top padding to avoid navbar overlap
  */
 
 export default function RecurringTasksPage() {
@@ -22,7 +22,7 @@ export default function RecurringTasksPage() {
   const [loading, setLoading] = useState(true);
   const [rawTasks, setRawTasks] = useState([]);
   const [occurrences, setOccurrences] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(null); // null => show whole month
 
   // Calendar controls
   const [year, setYear] = useState(now.getFullYear());
@@ -36,7 +36,7 @@ export default function RecurringTasksPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year, month]);
 
-  // Fetch tasks from Supabase (no date filters) and expand occurrences for visible month
+  // Fetch tasks from Supabase (no date filters) and expand occurrences for current month window
   const fetchAndExpand = async () => {
     setLoading(true);
 
@@ -56,6 +56,7 @@ export default function RecurringTasksPage() {
 
     const expanded = [];
     for (const task of tasks) {
+      // IMPORTANT: expandTaskOccurrences should accept windowStart/windowEnd
       const occDates = expandTaskOccurrences(task, windowStart, windowEnd);
       occDates.forEach((d) => {
         const occ = new Date(d);
@@ -63,7 +64,9 @@ export default function RecurringTasksPage() {
 
         // If task has a due_date, mark as overdue if applicable
         if (task.due_date) {
-          const dueDateTime = task.due_time ? new Date(`${task.due_date}T${task.due_time}`) : new Date(`${task.due_date}T23:59:59`);
+          const dueDateTime = task.due_time
+            ? new Date(`${task.due_date}T${task.due_time}`)
+            : new Date(`${task.due_date}T23:59:59`);
           if (isBefore(dueDateTime, new Date()) && task.status !== "complete") {
             status = "overdue";
           }
@@ -79,36 +82,53 @@ export default function RecurringTasksPage() {
       });
     }
 
-    // Sort occurrences chronologically
+    // Sort chronologically
     expanded.sort((a, b) => a.occurrenceDate - b.occurrenceDate);
 
     setOccurrences(expanded);
     setLoading(false);
   };
 
-  // Occurrences mapped for calendar (only visible month)
+  // Map occurrences only for the visible month (for rendering calendar badges + tooltips)
   const occurrencesForCalendar = useMemo(() => {
     return occurrences
       .filter((o) => o.occurrenceDate.getFullYear() === year && o.occurrenceDate.getMonth() === month)
-      .map((o) => ({ date: o.occurrenceDate, status: o.status, title: o.title || o.name || "Untitled" }));
+      .map((o) => ({
+        date: o.occurrenceDate,
+        status: o.status,
+        title: o.title || o.name || "Untitled",
+        description: o.description || "",
+        id: o.id,
+      }));
   }, [occurrences, year, month]);
 
-  // Tasks to show in right panel (selected date or whole month), with status filter
+  // Tasks to show in right panel: either selected date's tasks or whole month, then apply status filter
   const displayedTasks = useMemo(() => {
     let list = [];
+
     if (selectedDate) {
       list = occurrences.filter((o) => isSameDay(new Date(o.occurrenceDate), selectedDate));
     } else {
-      list = occurrences.filter((o) => o.occurrenceDate.getFullYear() === year && o.occurrenceDate.getMonth() === month);
+      list = occurrences.filter(
+        (o) => o.occurrenceDate.getFullYear() === year && o.occurrenceDate.getMonth() === month
+      );
     }
 
-    if (statusFilter !== "all") list = list.filter((o) => o.status === statusFilter);
+    if (statusFilter !== "all") {
+      list = list.filter((o) => o.status === statusFilter);
+    }
 
     return list;
   }, [occurrences, selectedDate, year, month, statusFilter]);
 
+  // when a date cell is clicked
   const handleDateClick = (date) => {
-    setSelectedDate(date);
+    // toggle selection: if already selected, clear it; otherwise select it
+    if (selectedDate && isSameDay(new Date(date), selectedDate)) {
+      setSelectedDate(null);
+    } else {
+      setSelectedDate(new Date(date));
+    }
   };
 
   const goToToday = () => {
@@ -137,7 +157,8 @@ export default function RecurringTasksPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#060617] via-[#070720] to-[#0a0a13] text-white px-4 py-8 lg:px-12 lg:py-10 flex gap-6">
+    // top padding so content doesn't sit under navbar (adjust value to match your navbar height)
+    <div className="min-h-screen bg-gradient-to-b from-[#060617] via-[#070720] to-[#0a0a13] text-white px-4 pt-28 pb-10 lg:px-12 flex gap-6">
       <Sidebar />
 
       <main className="flex-1 max-w-7xl mx-auto space-y-8 w-full">
@@ -196,7 +217,11 @@ export default function RecurringTasksPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Calendar */}
-          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="bg-[rgba(255,255,255,0.02)] border border-purple-700 rounded-2xl p-6 shadow-lg">
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-[rgba(255,255,255,0.02)] border border-purple-700 rounded-2xl p-6 shadow-lg"
+          >
             <CalendarViewStyled
               year={year}
               month={month}
@@ -207,10 +232,16 @@ export default function RecurringTasksPage() {
           </motion.div>
 
           {/* Tasks list */}
-          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="lg:col-span-2 bg-[rgba(255,255,255,0.02)] border border-purple-700 rounded-2xl p-6 shadow-lg max-h-[72vh] overflow-y-auto scrollbar-thin scrollbar-thumb-purple-700">
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="lg:col-span-2 bg-[rgba(255,255,255,0.02)] border border-purple-700 rounded-2xl p-6 shadow-lg max-h-[72vh] overflow-y-auto scrollbar-thin scrollbar-thumb-purple-700"
+          >
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-2xl font-semibold">
-                {selectedDate ? `Tasks on ${selectedDate.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" })}` : `Tasks in ${monthNames[month]} ${year}`}
+                {selectedDate
+                  ? `Tasks on ${selectedDate.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" })}`
+                  : `Tasks in ${monthNames[month]} ${year}`}
               </h2>
 
               <div className="flex items-center gap-3">
@@ -225,7 +256,13 @@ export default function RecurringTasksPage() {
               </div>
             ) : (
               <div className="grid gap-3">
+                {/* If you want a custom details view instead of TaskListSections, you can replace this block */}
                 <TaskListSections tasks={displayedTasks} />
+                {displayedTasks.length === 0 && !loading && (
+                  <div className="p-6 bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.03)] rounded-md text-gray-400">
+                    {selectedDate ? "No tasks on this date." : "No tasks in this month for the applied filter."}
+                  </div>
+                )}
               </div>
             )}
           </motion.div>
@@ -237,7 +274,7 @@ export default function RecurringTasksPage() {
 
 /* -------------------------
    CalendarViewStyled
-   Renders the month grid, color-coded dots, and simple hover preview tooltip
+   Renders the month grid, color-coded dots, selected style, and hover preview
    ------------------------- */
 function CalendarViewStyled({ year, month, occurrences, onDateClick, selectedDate }) {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -254,7 +291,11 @@ function CalendarViewStyled({ year, month, occurrences, onDateClick, selectedDat
   });
 
   function isSameDaySimple(d1, d2) {
-    return d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
+    return (
+      d1.getFullYear() === d2.getFullYear() &&
+      d1.getMonth() === d2.getMonth() &&
+      d1.getDate() === d2.getDate()
+    );
   }
 
   const dayCells = [];
@@ -266,19 +307,24 @@ function CalendarViewStyled({ year, month, occurrences, onDateClick, selectedDat
     const isSelected = selectedDate && isSameDaySimple(d, selectedDate);
     const isToday = isSameDaySimple(d, today);
 
+    // selected style takes precedence; today gets ring when not selected
+    const baseBtnClasses = [
+      "w-full h-full text-left p-3 rounded-md transition",
+      "min-h-[72px] flex flex-col",
+      isSelected ? "bg-gradient-to-br from-purple-700 to-indigo-700 text-white shadow-lg" : "hover:bg-[rgba(255,255,255,0.02)] text-gray-200",
+      isToday && !isSelected ? "ring-2 ring-purple-600" : "",
+    ].filter(Boolean).join(" ");
+
     dayCells.push(
       <div key={day} className="relative group">
         <button
           onClick={() => onDateClick(d)}
           type="button"
           aria-label={`Day ${day}, ${items.length} task(s)`}
-          className={`w-full h-full text-left p-3 rounded-md transition
-            ${isSelected ? "bg-gradient-to-br from-purple-700 to-indigo-700 text-white shadow-lg" : "hover:bg-[rgba(255,255,255,0.02)] text-gray-200"}
-            ${isToday ? "ring-2 ring-purple-600" : ""}
-            min-h-[72px] flex flex-col`}
+          className={baseBtnClasses}
         >
           <div className="flex items-start justify-between">
-            <span className="text-sm font-semibold">{day}</span>
+            <span className={`text-sm font-semibold ${isSelected ? "text-white" : ""}`}>{day}</span>
             {items.length > 0 && <span className="text-xs text-gray-300 font-semibold">{items.length}</span>}
           </div>
 
@@ -289,7 +335,13 @@ function CalendarViewStyled({ year, month, occurrences, onDateClick, selectedDat
               else if (it.status === "complete") dot = "bg-green-400";
               else if (it.status === "overdue") dot = "bg-red-500";
               else if (it.status === "ongoing") dot = "bg-blue-400";
-              return <span key={i} className={`${dot} w-2 h-2 rounded-full`} title={it.title || "Task"} />;
+              return (
+                <span
+                  key={i}
+                  className={`${dot} w-2 h-2 rounded-full`}
+                  title={it.title || "Task"}
+                />
+              );
             })}
             {items.length > 3 && <span className="text-[11px] text-gray-400">+{items.length - 3}</span>}
           </div>
@@ -311,7 +363,9 @@ function CalendarViewStyled({ year, month, occurrences, onDateClick, selectedDat
                     </div>
                     <div>
                       <div className="font-medium">{it.title || it.name || "Untitled"}</div>
-                      <div className="text-xs text-gray-400">{it.description ? `${String(it.description).slice(0, 80)}${String(it.description).length > 80 ? "…" : ""}` : null}</div>
+                      <div className="text-xs text-gray-400">
+                        {it.description ? `${String(it.description).slice(0, 80)}${String(it.description).length > 80 ? "…" : ""}` : null}
+                      </div>
                     </div>
                   </div>
                 ))}
