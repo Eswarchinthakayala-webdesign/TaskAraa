@@ -17,7 +17,7 @@ if (!GEMINI_API_KEY) {
 export async function generateNoteWithGemini(prompt) {
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${GEMINI_API_KEY}`,
       {
         method: "POST",
         headers: {
@@ -29,7 +29,7 @@ export async function generateNoteWithGemini(prompt) {
               parts: [
                 {
                   text: `Generate a clean, well-structured markdown note for: ${prompt}.
-                  Use headings (#, ##), bullet points, bold/italic formatting, and code blocks when relevant.`,
+                  Use headings (#, ##), bullet points, bold/italic formatting, and code blocks when relevant. and don't include markdown with triple ticks on the top  `,
                 },
               ],
             },
